@@ -93,6 +93,9 @@ const picArray = [
 ];
 
 const section = document.querySelector('#pictures');
+const dialog = document.querySelector('dialog');
+const bigImg = dialog.querySelector('img');
+const closeBtn = dialog.querySelector('span');
 
 for (let pic of picArray) {
   const img = document.createElement('img');
@@ -114,17 +117,14 @@ for (let pic of picArray) {
   const article = document.createElement('article');
   article.classList.add('card');
   article.append(h2, figure, p);
+  article.addEventListener('click', function() {
+    bigImg.src = pic.image.large;
+    dialog.showModal();
+  });
 
   section.append(article);
 }
 
-/*
-<article class="card">
-   <h2>title_from_picArray</h2>
-   <figure>
-      <img src="medium_image_from_picArray" alt="title_from_picArray">
-      <figcaption>caption_from_picArray</figcaption>
-   </figure>
-   <p>description_from_picArray</p>
-</article>
- */
+closeBtn.addEventListener('click', function() {
+  dialog.close();
+});
