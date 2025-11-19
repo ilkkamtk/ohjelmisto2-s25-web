@@ -7,54 +7,70 @@ const tvFormElem = document.querySelector('#tv');
 const resultsElem = document.querySelector('#results');
 
 // tehdään tapahtumankäsittelijä syöttölomakkeelle
-tvFormElem.addEventListener('submit', async function (evt) {
+tvFormElem.addEventListener('submit', async function(evt) {
 
-    // estetään html-sivun oletustoiminto (action-parametri)
-    evt.preventDefault();
+  // estetään html-sivun oletustoiminto (action-parametri)
+  evt.preventDefault();
 
-    // etsitään käyttäjän antama hakusana
-    const queryParam = document.querySelector('input[name=q]').value;
+  // etsitään käyttäjän antama hakusana
+  const queryParam = document.querySelector('input[name=q]').value;
 
-    // muodostetaan nettiin lähetettävä hakulause
-    const query = `https://api.tvmaze.com/search/shows?q=${queryParam}`;
+  // muodostetaan nettiin lähetettävä hakulause
+  const query = `https://api.tvmaze.com/search/shows?q=${queryParam}`;
 
-    // lähdetään hakemaan data netistä...
-    try {
+  // lähdetään hakemaan data netistä...
+  try {
 
-        // starting data download, fetch returns a promise which contains an object of type 'Response'
-        const response = await fetch( query)
+    // starting data download, fetch returns a promise which contains an object of type 'Response'
+    const response = await fetch(query);
 
-        // muutetaan saatu data json-muotoon
-        const jsonData = await response.json();
+    // muutetaan saatu data json-muotoon
+    const jsonData = await response.json();
 
-        // tyhjennetään aluksi html-sivun tulostusalue
-        resultsElem.innerHTML = '';
+    // tyhjennetään aluksi html-sivun tulostusalue
+    resultsElem.innerHTML = '';
 
-        // käydään saadusta json-datasta jokainen sarja yksitellen läpi,
-        // tehdään DOM-elementtejä, kun lisätään dataa tulostukseen
-        for (const tvShow of jsonData) {
-            // DOM-elementti sarjan otsikkoa varten
-            const h2 = document.createElement('h2');
-            // lisätään otsikon sisältö saadusta datasta
-            h2.innerText = tvShow.show.name;
+    // käydään saadusta json-datasta jokainen sarja yksitellen läpi,
+    // tehdään DOM-elementtejä, kun lisätään dataa tulostukseen
+    for (const tvShow of jsonData) {
+      // DOM-elementti sarjan otsikkoa varten
+      const h2 = document.createElement('h2');
+      // lisätään otsikon sisältö saadusta datasta
+      h2.innerText = tvShow.show.name;
 
-            // muodostetaan kuva-elementti ja lisätään siihe sen data
-            const img = document.createElement('img');
-            // '?' -> jos kuva löytyy, niin ok. Jos ei, niin html-sivulle tulee pikku kuvake
-            // -> tulos: js-koodi ei kaadu datan null-arvoon.
-            img.src = tvShow.show.image?.medium;
-            img.alt = tvShow.show.name;
+      // muodostetaan kuva-elementti ja lisätään siihe sen data
+      // kuvaa ei löydy versio 2, ei niin hyvä
+      //if (!tvShow.show.image) {
+      //  tvShow.show.image = {medium: 'https://placecats.com/210/295'};
+      //}
 
-            // tehdään article-elementti ja laitetaan sarjan tiedot sen sisään.
-            const article = document.createElement('article');
-            article.append(h2, img);
+      const img = document.createElement('img');
+      // '?' -> jos kuva löytyy, niin ok. Jos ei, niin html-sivulle tulee pikku kuvake
+      // -> tulos: js-koodi ei kaadu datan null-arvoon.
+      //img.src = tvShow.show.image?.medium;
+      // kuvaa ei löydy versio 3, advanced
+      img.src = tvShow.show.image ?
+          tvShow.show.image.medium :
+          'https://placeholdit.com/210x295';
+      img.alt = tvShow.show.name;
 
-            // lisätään valmis article-elemntti html-sivun tulostusalueelle
-            resultsElem.append(article);
-        }
+      // kuvaa ei löydy versio 1
+      // img.addEventListener('error', function() {
+      //  img.src = 'https://placecats.com/210/295';
+      // });
 
-    } catch (error) {
-        // virhetilanteessa tulostetaan virheen kuvaus
-        console.log(error.message);
+      console.log(img);
+
+      // tehdään article-elementti ja laitetaan sarjan tiedot sen sisään.
+      const article = document.createElement('article');
+      article.append(h2, img);
+
+      // lisätään valmis article-elemntti html-sivun tulostusalueelle
+      resultsElem.append(article);
     }
+
+  } catch (error) {
+    // virhetilanteessa tulostetaan virheen kuvaus
+    console.log(error.message);
+  }
 });
